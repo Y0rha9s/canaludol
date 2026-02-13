@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 📺 Canal Udol - Plataforma Web
 
-## Getting Started
+Bienvenido al repositorio oficial de **Canal Udol**, una plataforma web moderna diseñada para un canal de entretenimiento y noticias. Este proyecto ofrece una interfaz intuitiva para que los usuarios puedan mantenerse informados, conocer al elenco, realizar reclamos y contactarse con el canal.
 
-First, run the development server:
+## 🚀 Sobre el Proyecto
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Canal Udol es un sitio web desarrollado con las últimas tecnologías web para garantizar rapidez, SEO y una excelente experiencia de usuario.
+
+### Características Principales:
+- **Noticias:** Sección dedicada a las últimas novedades.
+- **Elenco:** Conoce a los profesionales y talentos del canal.
+- **Quiénes Somos:** Información sobre la historia y misión de Canal Udol.
+- **Contacto y Reclamos:** Formularios dedicados para la interacción directa con el público.
+- **Diseño Responsivo:** Optimizado para dispositivos móviles, tablets y computadoras de escritorio.
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+Este proyecto ha sido construido utilizando el siguiente stack tecnológico:
+
+- **[JavaScript](https://developer.mozilla.org/es/docs/Web/JavaScript):** Lenguaje de programación principal.
+- **[Next.js](https://nextjs.org/):** Framework de React para producción (App Router).
+- **[React](https://reactjs.org/):** Biblioteca para construir interfaces de usuario.
+- **[Tailwind CSS](https://tailwindcss.com/):** Framework de CSS para un diseño rápido y moderno.
+- **[Lucide React](https://lucide.dev/):** Set de iconos hermosos y consistentes.
+- **[ESLint](https://eslint.org/):** Herramienta de linting para mantener la calidad del código.
+
+---
+
+## 📦 Estructura del Proyecto
+
+```text
+src/
+├── app/            # Rutas y páginas principales (Next.js App Router)
+│   ├── contacto/   # Página de contacto
+│   ├── elenco/     # Página de integrantes del canal
+│   ├── noticias/   # Sección de noticias
+│   ├── quienes-somos/ # Información corporativa
+│   └── reclamos/   # Sistema de reclamos
+├── components/     # Componentes reutilizables (Navbar, Footer, etc.)
+└── public/         # Archivos estáticos (imágenes, logos, etc.)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## ⚙️ Configuración y Ejecución
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Para ejecutar este proyecto localmente, sigue estos pasos:
 
-## Learn More
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/tu-usuario/canal-udol.git
+cd canal-udol
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Instalar dependencias
+```bash
+npm install
+# o
+yarn install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Ejecutar el servidor de desarrollo
+```bash
+npm run dev
+# o
+yarn dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el resultado.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 Licencia
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Este proyecto es privado. Todos los derechos reservados a Canal Udol.
+
+---
+
+Desarrollado con ❤️ para **Canal Udol**.
