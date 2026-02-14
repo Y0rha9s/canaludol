@@ -1,19 +1,16 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Navbar() {
   return (
-    <nav className="bg-white shadow-lg border-b-4 border-blue-600">
+    <nav className="bg-[#B0E2FF] shadow-lg border-b-2 border-[#87CEFA]">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image 
-              src="/logo.png" 
+          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
+            <img 
+              src="/logo.png"
               alt="Canal Udol" 
-              width={120} 
-              height={60}
-              className="object-contain"
+              className="h-16 w-auto object-contain"
             />
           </Link>
           

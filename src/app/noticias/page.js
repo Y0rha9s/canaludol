@@ -32,12 +32,18 @@ export default function Noticias() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
       <Navbar />
       
-      <main className="flex-grow bg-gray-50">
+      {/* Fondo de imagen con overlay */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-black/50 z-10"></div>
+        <img src="/volcan1.jpg" alt="Fondo" className="w-full h-full object-cover" />
+      </div>
+      
+      <main className="flex-grow">
         <div className="max-w-6xl mx-auto px-4 py-16">
-          <h1 className="text-4xl font-bold text-blue-600 mb-12 text-center">Noticias</h1>
+          <h1 className="text-4xl font-bold text-white mb-12 text-center drop-shadow-md">Noticias</h1>
           
           {/* Carrusel */}
           <div className="relative bg-white rounded-lg shadow-lg mb-16 overflow-hidden">
@@ -88,16 +94,16 @@ export default function Noticias() {
           </div>
           
           {/* Grid de noticias */}
-          <h2 className="text-2xl font-bold text-blue-600 mb-6">Más Noticias</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-md">Más Noticias</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {noticiasGrid.map((noticia, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                <div className="bg-blue-200 h-48 flex items-center justify-center">
-                  <span className="text-6xl">📰</span>
+              <div key={index} className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all border border-white/20 group">
+                <div className="bg-white/5 h-48 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                  <span className="text-6xl drop-shadow-lg">📰</span>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-lg text-gray-800 mb-2">{noticia.titulo}</h3>
-                  <p className="text-gray-500 text-sm">{noticia.fecha}</p>
+                <div className="p-6">
+                  <h3 className="font-bold text-xl text-white mb-3 drop-shadow-sm">{noticia.titulo}</h3>
+                  <p className="text-blue-200 text-sm font-medium">{noticia.fecha}</p>
                 </div>
               </div>
             ))}
