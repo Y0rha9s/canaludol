@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -22,6 +22,13 @@ export default function Noticias() {
     { titulo: "Noticia 5", fecha: "9 Feb 2024" },
     { titulo: "Noticia 6", fecha: "8 Feb 2024" }
   ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % noticiasCarrusel.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [noticiasCarrusel.length]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % noticiasCarrusel.length);
@@ -46,19 +53,19 @@ export default function Noticias() {
           <h1 className="text-4xl font-bold text-white mb-12 text-center drop-shadow-md">Noticias</h1>
           
           {/* Carrusel */}
-          <div className="relative bg-white rounded-lg shadow-lg mb-16 overflow-hidden">
+          <div className="relative bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl mb-16 overflow-hidden border border-white/20">
             <div className="relative h-96">
               {noticiasCarrusel.map((noticia, index) => (
                 <div
                   key={index}
-                  className={`absolute inset-0 transition-opacity duration-500 ${
-                    index === currentSlide ? 'opacity-100' : 'opacity-0'
+                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
                   }`}
                 >
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-700 h-full flex items-center justify-center p-8">
-                    <div className="text-center text-white">
-                      <h2 className="text-4xl font-bold mb-4">{noticia.titulo}</h2>
-                      <p className="text-xl">{noticia.descripcion}</p>
+                  <div className="bg-gradient-to-r from-blue-600/40 to-blue-900/40 h-full flex items-center justify-center p-8">
+                    <div className="text-center text-white max-w-2xl">
+                      <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">{noticia.titulo}</h2>
+                      <p className="text-xl text-blue-100 drop-shadow-md leading-relaxed">{noticia.descripcion}</p>
                     </div>
                   </div>
                 </div>
@@ -68,13 +75,13 @@ export default function Noticias() {
             {/* Botones del carrusel */}
             <button
               onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-blue-600 rounded-full p-3 shadow-lg"
+              className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
             >
               ❮
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-blue-600 rounded-full p-3 shadow-lg"
+              className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
             >
               ❯
             </button>
