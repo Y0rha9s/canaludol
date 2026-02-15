@@ -6,6 +6,16 @@ import Footer from '@/components/Footer';
 export default function Noticias() {
   const [currentSlide, setCurrentSlide] = useState(0);
   
+  const formatFecha = (date = new Date()) => {
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    const formatted = date.toLocaleDateString('es-CL', options).replace('.', '');
+    const parts = formatted.split(' ');
+    const day = parts[0];
+    const month = parts[1] ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : '';
+    const year = parts[2] || '';
+    return `${day} ${month} ${year}`;
+  };
+
   const noticiasCarrusel = [
     { titulo: "Noticia Destacada 1", descripcion: "Descripción breve de la primera noticia destacada" },
     { titulo: "Noticia Destacada 2", descripcion: "Descripción breve de la segunda noticia destacada" },
@@ -15,13 +25,13 @@ export default function Noticias() {
   ];
 
   const noticiasGrid = [
-    { titulo: "Noticia 1", fecha: "13 Feb 2024" },
-    { titulo: "Noticia 2", fecha: "12 Feb 2024" },
-    { titulo: "Noticia 3", fecha: "11 Feb 2024" },
-    { titulo: "Noticia 4", fecha: "10 Feb 2024" },
-    { titulo: "Noticia 5", fecha: "9 Feb 2024" },
-    { titulo: "Noticia 6", fecha: "8 Feb 2024" }
-  ];
+    { titulo: "Noticia 1" },
+    { titulo: "Noticia 2" },
+    { titulo: "Noticia 3" },
+    { titulo: "Noticia 4" },
+    { titulo: "Noticia 5" },
+    { titulo: "Noticia 6" }
+  ].map(n => ({ ...n, fecha: n.fecha ?? formatFecha() }));
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -54,7 +64,7 @@ export default function Noticias() {
           
           {/* Carrusel */}
           <div className="relative bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl mb-16 overflow-hidden border border-white/20">
-            <div className="relative h-96">
+            <div className="relative h-72 sm:h-80 md:h-96">
               {noticiasCarrusel.map((noticia, index) => (
                 <div
                   key={index}
@@ -63,9 +73,9 @@ export default function Noticias() {
                   }`}
                 >
                   <div className="bg-gradient-to-r from-blue-600/40 to-blue-900/40 h-full flex items-center justify-center p-8">
-                    <div className="text-center text-white max-w-2xl">
-                      <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">{noticia.titulo}</h2>
-                      <p className="text-xl text-blue-100 drop-shadow-md leading-relaxed">{noticia.descripcion}</p>
+                    <div className="text-center text-white max-w-2xl px-4">
+                      <h2 className="text-3xl sm:text-4xl font-bold mb-4 drop-shadow-lg">{noticia.titulo}</h2>
+                      <p className="text-lg sm:text-xl text-blue-100 drop-shadow-md leading-relaxed">{noticia.descripcion}</p>
                     </div>
                   </div>
                 </div>
@@ -75,13 +85,13 @@ export default function Noticias() {
             {/* Botones del carrusel */}
             <button
               onClick={prevSlide}
-              className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
+              className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 md:p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
             >
               ❮
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
+              className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 md:p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
             >
               ❯
             </button>

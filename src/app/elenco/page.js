@@ -7,21 +7,21 @@ export default function Elenco() {
     {
       nombre: "Marcelo Bermedo",
       rol: "Dueño del canal",
-      descripcion: "Magister en economia y finanzas",
+      descripcion: "Ingeniero Comercial",
       imagen: "/marcelo.png",
       posicion: "object-top"
     },
     {
-      nombre: "Maribel Figeroa",
-      rol: "Presentadora Principal",
-      descripcion: "Periodista Reconocida en investigación y reportaje",
+      nombre: "Maribel Figueroa Pérez",
+      rol: "Presentadora y Reportera",
+      descripcion: "reportera con 20 años de trayectoria en medios de comunicación radial y escrito. Trabajando en llevar información clara y veraz a la comunidad",
       imagen: "/maribel.png",
       posicion: "object-center"
     },
     {
       nombre: "Maritza Gonzalez",
       rol: "Psicologa",
-      descripcion: "Maestria en peritaje psicologico",
+      descripcion: "Psicologia y Mediacion Familiar",
       imagen: "/maritza2.jpg",
       posicion: "object-center"
     }
@@ -49,10 +49,10 @@ export default function Elenco() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
             {miembros.map((miembro, index) => (
               <div key={index} className="group flex flex-col items-center text-center">
-                <div className="relative w-64 h-64 mb-6 transition-transform duration-300 group-hover:scale-105">
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 mb-6 transition-transform duration-300 group-hover:scale-105">
                   {/* Decorative circle background */}
                   <div className="absolute inset-0 bg-blue-100 rounded-full transform -rotate-6 transition-transform group-hover:rotate-0"></div>
                   
@@ -66,15 +66,15 @@ export default function Elenco() {
                   </div>
                 </div>
 
-                <div className="space-y-2 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 shadow-2xl w-full">
-                  <h3 className="text-2xl font-bold text-white group-hover:text-blue-300 transition-colors drop-shadow-md">
+                <div className="space-y-2 bg-white/10 backdrop-blur-md p-5 md:p-6 rounded-2xl border border-white/20 shadow-2xl w-full">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white group-hover:text-blue-300 transition-colors drop-shadow-md">
                     {miembro.nombre}
                   </h3>
-                  <p className="text-blue-300 font-semibold uppercase tracking-wider text-sm drop-shadow-sm">
+                  <p className="text-blue-300 font-semibold uppercase tracking-wider text-xs sm:text-sm drop-shadow-sm">
                     {miembro.rol}
                   </p>
                   <div className="w-12 h-1 bg-blue-400/50 mx-auto my-3 group-hover:w-24 transition-all duration-300"></div>
-                  <p className="text-gray-100 italic leading-relaxed max-w-xs drop-shadow-sm">
+                  <p className="text-gray-100 italic leading-relaxed max-w-xs drop-shadow-sm text-sm sm:text-base">
                     "{miembro.descripcion}"
                   </p>
                 </div>
