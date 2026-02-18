@@ -14,14 +14,14 @@ export default function Elenco() {
     {
       nombre: "Maribel Figueroa Pérez",
       rol: "Presentadora y Reportera",
-      descripcion: "reportera con 20 años de trayectoria en medios de comunicación radial y escrito. Trabajando en llevar información clara y veraz a la comunidad",
+      descripcion: "Reportera y presentadora con 20 años de trayectoria en medios de comunicación radial y escrito. Trabajando en llevar información clara y veraz a la comunidad",
       imagen: "/maribel.png",
       posicion: "object-center"
     },
     {
-      nombre: "Maritza Gonzalez",
+      nombre: "Maritza González",
       rol: "Psicologa",
-      descripcion: "Psicologia y Mediacion Familiar",
+      descripcion: "Psicología clinica y Mediacion Familiar",
       imagen: "/maritza2.jpg",
       posicion: "object-center"
     }
