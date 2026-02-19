@@ -25,21 +25,21 @@ export default function GestionCarrusel() {
   }, [status, router]);
 
   useEffect(() => {
-    fetchSlides();
-  }, []);
+    const load = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('carrusel_principal')
+        .select('*')
+        .order('orden', { ascending: true });
+      
+      if (!error) {
+        setSlides(data || []);
+      }
+      setLoading(false);
+    };
 
-  const fetchSlides = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('carrusel_principal')
-      .select('*')
-      .order('orden', { ascending: true });
-    
-    if (!error) {
-      setSlides(data || []);
-    }
-    setLoading(false);
-  };
+    load();
+  }, []);
 
   const handleEdit = (slide) => {
     setEditingSlide(slide.id);

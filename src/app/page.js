@@ -275,7 +275,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Últimas Noticias</h3>
-              <p className="text-gray-600 leading-relaxed">Mantente al día con los acontecimientos más relevantes de nuestra región y el mundo.</p>
+              <p className="text-black leading-relaxed">Mantente al día con los acontecimientos más relevantes de nuestra región y el mundo.</p>
             </div>
 
             <div className="p-8 rounded-2xl bg-blue-50 hover:shadow-lg transition-shadow border-t-4 border-blue-600">
@@ -285,7 +285,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">En Vivo</h3>
-              <p className="text-gray-600 leading-relaxed">No te pierdas nuestra señal en directo con contenido exclusivo para ti.</p>
+              <p className="text-black leading-relaxed">No te pierdas nuestra señal en directo lunes, miercoles y viernes a las 8:30 con contenido exclusivo para ti.</p>
             </div>
 
             <div className="p-8 rounded-2xl bg-blue-50 hover:shadow-lg transition-shadow">
@@ -295,7 +295,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Nuestro Elenco</h3>
-              <p className="text-gray-600 leading-relaxed">Conoce a las caras que acompañan tus tardes y mañanas en Canal Udol.</p>
+              <p className="text-black leading-relaxed">Conoce a las caras que acompañan tus tardes y mañanas en Canal Udol.</p>
             </div>
           </div>
         </div>

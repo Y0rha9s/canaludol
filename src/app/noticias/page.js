@@ -17,21 +17,21 @@ export default function Noticias() {
   };
 
   const noticiasCarrusel = [
-    { titulo: "Noticia Destacada 1", descripcion: "Descripción breve de la primera noticia destacada" },
-    { titulo: "Noticia Destacada 2", descripcion: "Descripción breve de la segunda noticia destacada" },
-    { titulo: "Noticia Destacada 3", descripcion: "Descripción breve de la tercera noticia destacada" },
-    { titulo: "Noticia Destacada 4", descripcion: "Descripción breve de la cuarta noticia destacada" },
-    { titulo: "Noticia Destacada 5", descripcion: "Descripción breve de la quinta noticia destacada" }
+    { titulo: 'Noticia Destacada 1', descripcion: 'Descripción breve de la primera noticia destacada' },
+    { titulo: 'Noticia Destacada 2', descripcion: 'Descripción breve de la segunda noticia destacada' },
+    { titulo: 'Noticia Destacada 3', descripcion: 'Descripción breve de la tercera noticia destacada' },
+    { titulo: 'Noticia Destacada 4', descripcion: 'Descripción breve de la cuarta noticia destacada' },
+    { titulo: 'Noticia Destacada 5', descripcion: 'Descripción breve de la quinta noticia destacada' }
   ];
 
   const noticiasGrid = [
-    { titulo: "Noticia 1" },
-    { titulo: "Noticia 2" },
-    { titulo: "Noticia 3" },
-    { titulo: "Noticia 4" },
-    { titulo: "Noticia 5" },
-    { titulo: "Noticia 6" }
-  ].map(n => ({ ...n, fecha: n.fecha ?? formatFecha() }));
+    { titulo: 'Noticia 1' },
+    { titulo: 'Noticia 2' },
+    { titulo: 'Noticia 3' },
+    { titulo: 'Noticia 4' },
+    { titulo: 'Noticia 5' },
+    { titulo: 'Noticia 6' }
+  ].map((n) => ({ ...n, fecha: n.fecha ?? formatFecha() }));
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -62,7 +62,6 @@ export default function Noticias() {
         <div className="max-w-6xl mx-auto px-4 py-16">
           <h1 className="text-4xl font-bold text-white mb-12 text-center drop-shadow-md">Noticias</h1>
           
-          {/* Carrusel */}
           <div className="relative bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl mb-16 overflow-hidden border border-white/20">
             <div className="relative h-72 sm:h-80 md:h-96">
               {noticiasCarrusel.map((noticia, index) => (
@@ -82,7 +81,6 @@ export default function Noticias() {
               ))}
             </div>
             
-            {/* Botones del carrusel */}
             <button
               onClick={prevSlide}
               className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 md:p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
@@ -96,7 +94,6 @@ export default function Noticias() {
               ❯
             </button>
             
-            {/* Indicadores */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
               {noticiasCarrusel.map((_, index) => (
                 <button
@@ -110,7 +107,6 @@ export default function Noticias() {
             </div>
           </div>
           
-          {/* Grid de noticias */}
           <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-md">Más Noticias</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {noticiasGrid.map((noticia, index) => (

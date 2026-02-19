@@ -12,25 +12,34 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        const { data: admin } = await supabaseAdmin
-          .from('admins')
-          .select('*')
-          .eq('email', credentials.email)
-          .single();
+        try {
+          const { data: admin, error } = await supabaseAdmin
+            .from('admins')
+            .select('*')
+            .eq('email', credentials.email)
+            .single();
 
-        if (!admin) return null;
+          if (error || !admin) {
+            console.log('Admin no encontrado');
+            return null;
+          }
 
-        const isValid = await bcrypt.compare(credentials.password, admin.password);
-        
-        if (isValid) {
-          return {
-            id: admin.id,
-            email: admin.email,
-            name: admin.name
-          };
+          const isValid = await bcrypt.compare(credentials.password, admin.password);
+          
+          if (isValid) {
+            return {
+              id: admin.id,
+              email: admin.email,
+              name: admin.name
+            };
+          }
+          
+          console.log('Contraseña incorrecta');
+          return null;
+        } catch (error) {
+          console.error('Error en authorize:', error);
+          return null;
         }
-        
-        return null;
       }
     })
   ],
@@ -51,7 +60,8 @@ const handler = NextAuth({
       session.user.id = token.id;
       return session;
     }
-  }
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 });
 
 export { handler as GET, handler as POST };
