@@ -75,7 +75,7 @@ export default function Elenco() {
                   </p>
                   <div className="w-12 h-1 bg-blue-400/50 mx-auto my-3 group-hover:w-24 transition-all duration-300"></div>
                   <p className="text-gray-100 italic leading-relaxed max-w-xs drop-shadow-sm text-sm sm:text-base">
-                    "{miembro.descripcion}"
+                    &quot;{miembro.descripcion}&quot;
                   </p>
                 </div>
               </div>

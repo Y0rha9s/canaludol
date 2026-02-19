@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
 
 export default function Footer() {
@@ -18,10 +19,26 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4">Enlaces</h3>
             <ul className="space-y-2">
-              <li><a href="/quienes-somos" className="text-blue-100 hover:text-white">Quiénes Somos</a></li>
-              <li><a href="/elenco" className="text-blue-100 hover:text-white">Nuestro Elenco</a></li>
-              <li><a href="/noticias" className="text-blue-100 hover:text-white">Noticias</a></li>
-              <li><a href="/contacto" className="text-blue-100 hover:text-white">Contacto</a></li>
+              <li>
+                <Link href="/quienes-somos" className="text-blue-100 hover:text-white">
+                  Quiénes Somos
+                </Link>
+              </li>
+              <li>
+                <Link href="/elenco" className="text-blue-100 hover:text-white">
+                  Nuestro Elenco
+                </Link>
+              </li>
+              <li>
+                <Link href="/noticias" className="text-blue-100 hover:text-white">
+                  Noticias
+                </Link>
+              </li>
+              <li>
+                <Link href="/contacto" className="text-blue-100 hover:text-white">
+                  Contacto
+                </Link>
+              </li>
             </ul>
           </div>
           

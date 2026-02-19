@@ -13,13 +13,23 @@ export default function AdminNoticias() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [imagenFile, setImagenFile] = useState(null);
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
-    es_destacada: false,
-    orden_destacada: 1,
-    fecha: ''
+    contenido: '',
+    imagen_url: '',
+    categoria: '',
+    destacada: false,
+    orden: 1,
+    publicada: true
   });
+
+  const fetchNoticias = () =>
+    supabase
+      .from('noticias')
+      .select('*')
+      .order('created_at', { ascending: false });
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -31,10 +41,7 @@ export default function AdminNoticias() {
     if (status === 'authenticated') {
       const load = async () => {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('noticias')
-          .select('*')
-          .order('fecha', { ascending: false });
+        const { data, error } = await fetchNoticias();
 
         if (error) {
           console.error(error);
@@ -58,17 +65,52 @@ export default function AdminNoticias() {
     });
   };
 
+  const handleImagenFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setImagenFile(file);
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError('');
 
+    let imagenUrl = formData.imagen_url || null;
+
+    if (imagenFile) {
+      const ext = imagenFile.name.split('.').pop() || 'jpg';
+      const filePath = `noticias/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('noticias-imagenes')
+        .upload(filePath, imagenFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error(uploadError);
+        setSaving(false);
+        setError('No se pudo subir la imagen');
+        return;
+      }
+
+      const { data: publicData } = supabase.storage
+        .from('noticias-imagenes')
+        .getPublicUrl(uploadData.path);
+
+      imagenUrl = publicData?.publicUrl || null;
+    }
+
     const payload = {
       titulo: formData.titulo,
       descripcion: formData.descripcion || null,
-      es_destacada: formData.es_destacada,
-      orden_destacada: formData.es_destacada ? Number(formData.orden_destacada) || 1 : null,
-      fecha: formData.fecha || new Date().toISOString()
+      contenido: formData.contenido || null,
+      imagen_url: imagenUrl,
+      categoria: formData.categoria || null,
+      destacada: formData.destacada,
+      orden: formData.destacada ? Number(formData.orden) || 1 : null,
+      publicada: formData.publicada
     };
 
     const { error } = await supabase.from('noticias').insert(payload);
@@ -84,19 +126,26 @@ export default function AdminNoticias() {
     setFormData({
       titulo: '',
       descripcion: '',
-      es_destacada: false,
-      orden_destacada: 1,
-      fecha: ''
+      contenido: '',
+      imagen_url: '',
+      categoria: '',
+      destacada: false,
+      orden: 1,
+      publicada: true
     });
+    setImagenFile(null);
 
-    fetchNoticias();
+    const { data, error: loadError } = await fetchNoticias();
+    if (!loadError) {
+      setNoticias(data || []);
+    }
   };
 
   const handleToggleDestacada = async (noticia) => {
     const { error } = await supabase
       .from('noticias')
       .update({
-        es_destacada: !noticia.es_destacada
+        destacada: !noticia.destacada
       })
       .eq('id', noticia.id);
 
@@ -106,7 +155,10 @@ export default function AdminNoticias() {
       return;
     }
 
-    fetchNoticias();
+    const { data, error: loadError } = await fetchNoticias();
+    if (!loadError) {
+      setNoticias(data || []);
+    }
   };
 
   const handleOrdenChange = async (noticia, orden) => {
@@ -114,7 +166,7 @@ export default function AdminNoticias() {
     const { error } = await supabase
       .from('noticias')
       .update({
-        orden_destacada: value
+        orden: value
       })
       .eq('id', noticia.id);
 
@@ -124,7 +176,10 @@ export default function AdminNoticias() {
       return;
     }
 
-    fetchNoticias();
+    const { data, error: loadError } = await fetchNoticias();
+    if (!loadError) {
+      setNoticias(data || []);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -141,7 +196,10 @@ export default function AdminNoticias() {
       return;
     }
 
-    fetchNoticias();
+    const { data, error: loadError } = await fetchNoticias();
+    if (!loadError) {
+      setNoticias(data || []);
+    }
   };
 
   if (status === 'loading' || loading) {
@@ -152,8 +210,8 @@ export default function AdminNoticias() {
     );
   }
 
-  const destacadas = noticias.filter((n) => n.es_destacada);
-  const normales = noticias.filter((n) => !n.es_destacada);
+  const destacadas = noticias.filter((n) => n.destacada);
+  const normales = noticias.filter((n) => !n.destacada);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -195,7 +253,7 @@ export default function AdminNoticias() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Descripción (para carrusel)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Descripción corta</label>
               <textarea
                 name="descripcion"
                 value={formData.descripcion}
@@ -205,12 +263,42 @@ export default function AdminNoticias() {
               />
             </div>
 
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contenido completo</label>
+              <textarea
+                name="contenido"
+                value={formData.contenido}
+                onChange={handleChange}
+                rows="4"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black"
+              />
+            </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+              <label className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium cursor-pointer hover:bg-blue-700">
+                Subir imagen (JPG o PNG)
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImagenFileChange}
+                  className="hidden"
+                />
+              </label>
+              <div className="mt-1 text-xs text-gray-600">
+                {imagenFile ? `Archivo seleccionado: ${imagenFile.name}` : 'Ningún archivo seleccionado.'}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Si no subes imagen, se mostrará un ícono por defecto.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
               <input
-                type="date"
-                name="fecha"
-                value={formData.fecha}
+                type="text"
+                name="categoria"
+                value={formData.categoria}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black"
               />
@@ -218,31 +306,45 @@ export default function AdminNoticias() {
 
             <div className="flex items-center gap-3">
               <input
-                id="es_destacada"
+                id="destacada"
                 type="checkbox"
-                name="es_destacada"
-                checked={formData.es_destacada}
+                name="destacada"
+                checked={formData.destacada}
                 onChange={handleChange}
                 className="h-4 w-4 text-blue-600 border-gray-300 rounded"
               />
-              <label htmlFor="es_destacada" className="text-sm text-gray-700">
+              <label htmlFor="destacada" className="text-sm text-gray-700">
                 Mostrar en carrusel de noticias destacadas
               </label>
             </div>
 
-            {formData.es_destacada && (
+            {formData.destacada && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Orden en carrusel</label>
                 <input
                   type="number"
-                  name="orden_destacada"
-                  value={formData.orden_destacada}
+                  name="orden"
+                  value={formData.orden}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black"
                   min="1"
                 />
               </div>
             )}
+
+            <div className="flex items-center gap-3">
+              <input
+                id="publicada"
+                type="checkbox"
+                name="publicada"
+                checked={formData.publicada}
+                onChange={handleChange}
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+              />
+              <label htmlFor="publicada" className="text-sm text-gray-700">
+                Mostrar en la página pública
+              </label>
+            </div>
 
             <div className="md:col-span-2 flex justify-end">
               <button
@@ -266,12 +368,12 @@ export default function AdminNoticias() {
                 <div key={n.id} className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">
                   <div>
                     <div className="font-semibold text-gray-800">{n.titulo}</div>
-                    <div className="text-sm text-black">Orden: {n.orden_destacada ?? '-'}</div>
+                    <div className="text-sm text-black">Orden: {n.orden ?? '-'}</div>
                   </div>
                   <div className="flex items-center gap-3">
                     <input
                       type="number"
-                      defaultValue={n.orden_destacada ?? ''}
+                      defaultValue={n.orden ?? ''}
                       onBlur={(e) => handleOrdenChange(n, e.target.value)}
                       className="w-20 px-2 py-1 border border-gray-300 rounded-lg text-sm text-black"
                     />
@@ -299,7 +401,7 @@ export default function AdminNoticias() {
                   <div>
                     <div className="font-semibold text-gray-800">{n.titulo}</div>
                     <div className="text-xs text-black">
-                      {n.es_destacada ? 'Destacada' : 'Normal'}
+                      {n.destacada ? 'Destacada' : 'Normal'}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
