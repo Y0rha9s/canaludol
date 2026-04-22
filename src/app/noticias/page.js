@@ -1,197 +1,140 @@
-'use client';
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
-export default function Noticias() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [noticiasCarrusel, setNoticiasCarrusel] = useState([]);
-  const [noticiasGrid, setNoticiasGrid] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
- 
-  const formatFecha = (date = new Date()) => {
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    const formatted = date.toLocaleDateString('es-CL', options).replace('.', '');
-    const parts = formatted.split(' ');
-    const day = parts[0];
-    const month = parts[1] ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : '';
-    const year = parts[2] || '';
-    return `${day} ${month} ${year}`;
-  };
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const ahora = new Date();
-        const cincoDiasMs = 5 * 24 * 60 * 60 * 1000;
-        const limite = new Date(ahora.getTime() - cincoDiasMs).toISOString();
-        const { data, error } = await supabase
-          .from('noticias')
-          .select('*')
-          .eq('publicada', true)
-          .gte('created_at', limite)
-          .order('created_at', { ascending: false });
+const CATEGORIAS = ['Regional', 'Deporte', 'Cultura', 'Política', 'Comunidad'];
 
-        if (error) {
-          console.error(error);
-          setError('No se pudieron cargar las noticias');
-          setNoticiasCarrusel([]);
-          setNoticiasGrid([]);
-          return;
-        }
+async function getNoticias(categoria) {
+  const now = new Date().toISOString();
+  let query = supabase
+    .from('noticias')
+    .select('*')
+    .eq('publicada', true)
+    .or(`expires_at.is.null,expires_at.gt.${now}`)
+    .order('created_at', { ascending: false });
 
-        const todas = data || [];
-        const destacadas = todas
-          .filter((n) => n.destacada)
-          .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999));
-        const normales = todas.filter((n) => !n.destacada);
+  if (categoria) {
+    query = query.ilike('categoria', categoria);
+  }
 
-        setNoticiasCarrusel(destacadas);
+  const { data } = await query;
+  return data || [];
+}
 
-        const grid = normales.slice(0, 6).map((n) => ({
-          ...n,
-          fecha_mostrar: n.created_at ? formatFecha(new Date(n.created_at)) : formatFecha()
-        }));
-        setNoticiasGrid(grid);
-        setError('');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
-  }, []);
-
-  useEffect(() => {
-    if (noticiasCarrusel.length === 0) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % noticiasCarrusel.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [noticiasCarrusel.length]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % noticiasCarrusel.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + noticiasCarrusel.length) % noticiasCarrusel.length);
-  };
+export default async function NoticiasPage({ searchParams }) {
+  const categoria = searchParams?.categoria || null;
+  const noticias = await getNoticias(categoria);
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col bg-[#0f0f0f]">
       <Navbar />
-      
-      {/* Fondo de imagen con overlay */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-black/50 z-10"></div>
-        <img src="/volcan1.jpg" alt="Fondo" className="w-full h-full object-cover" />
-      </div>
-      
-      <main className="flex-grow">
-        <div className="max-w-6xl mx-auto px-4 py-16">
-          <h1 className="text-4xl font-bold text-white mb-12 text-center drop-shadow-md">Noticias</h1>
-          
-          {loading ? (
-            <p className="text-center text-blue-100">Cargando noticias...</p>
-          ) : error ? (
-            <p className="text-center text-red-200">{error}</p>
-          ) : (
-            <>
-              {noticiasCarrusel.length > 0 && (
-                <div className="relative bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl mb-16 overflow-hidden border border-white/20">
-                  <div className="relative h-72 sm:h-80 md:h-96">
-                    {noticiasCarrusel.map((noticia, index) => (
-                      <div
-                        key={noticia.id}
-                        className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                          index === currentSlide ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
-                        }`}
-                      >
-                        <Link href={`/noticias/${noticia.id}`}>
-                          <div className="bg-gradient-to-r from-blue-600/40 to-blue-900/40 h-full flex items-center justify-center p-8 cursor-pointer">
-                            <div className="text-center text-white max-w-2xl px-4">
-                              <h2 className="text-3xl sm:text-4xl font-bold mb-4 drop-shadow-lg">{noticia.titulo}</h2>
-                              <p className="text-lg sm:text-xl text-blue-100 drop-shadow-md leading-relaxed">
-                                {noticia.descripcion}
-                              </p>
-                            </div>
-                          </div>
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {noticiasCarrusel.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevSlide}
-                        className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 md:p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
-                      >
-                        ❮
-                      </button>
-                      <button
-                        onClick={nextSlide}
-                        className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 md:p-4 shadow-lg backdrop-blur-sm border border-white/30 transition-all active:scale-90"
-                      >
-                        ❯
-                      </button>
-                    </>
-                  )}
-                  
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                    {noticiasCarrusel.map((n, index) => (
-                      <button
-                        key={n.id}
-                        onClick={() => setCurrentSlide(index)}
-                        className={`w-3 h-3 rounded-full ${
-                          index === currentSlide ? 'bg-white' : 'bg-white/50'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-md">Más Noticias</h2>
-              {noticiasGrid.length === 0 ? (
-                <p className="text-blue-100 text-sm">Aún no hay noticias publicadas.</p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {noticiasGrid.map((noticia) => (
-                    <Link
-                      key={noticia.id}
-                      href={`/noticias/${noticia.id}`}
-                      className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all border border-white/20 group"
-                    >
-                      <div className="bg-white/5 h-48 flex items-center justify-center group-hover:bg-white/10 transition-colors overflow-hidden">
-                        {noticia.imagen_url ? (
-                          <img
-                            src={noticia.imagen_url}
-                            alt={noticia.titulo}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-6xl drop-shadow-lg">📰</span>
-                        )}
-                      </div>
-                      <div className="p-6">
-                        <h3 className="font-bold text-xl text-white mb-3 drop-shadow-sm">{noticia.titulo}</h3>
-                        <p className="text-blue-200 text-sm font-medium">{noticia.fecha_mostrar}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
+      {/* Header */}
+      <section className="bg-[#0a0a0a] border-b border-white/10 py-10">
+        <div className="max-w-7xl mx-auto px-4">
+          <h1 className="text-3xl font-extrabold text-white mb-6">Noticias</h1>
+
+          {/* Filtros categoría */}
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/noticias"
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                !categoria
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              }`}
+            >
+              Todas
+            </Link>
+            {CATEGORIAS.map((cat) => (
+              <Link
+                key={cat}
+                href={`/noticias?categoria=${cat.toLowerCase()}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  categoria?.toLowerCase() === cat.toLowerCase()
+                    ? 'bg-red-600 text-white'
+                    : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                }`}
+              >
+                {cat}
+              </Link>
+            ))}
+          </div>
         </div>
+      </section>
+
+      {/* Grid */}
+      <main className="flex-grow max-w-7xl mx-auto px-4 py-10 w-full">
+        {noticias.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-gray-500 text-lg">No hay noticias en esta categoría.</p>
+            <Link href="/noticias" className="text-blue-400 hover:underline text-sm mt-2 inline-block">
+              Ver todas las noticias
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {noticias.map((n) => (
+              <Link key={n.id} href={`/noticias/${n.id}`} className="group">
+                <article className="bg-[#1a1a1a] rounded-xl overflow-hidden hover:bg-[#222] transition-colors h-full flex flex-col">
+                  {/* Imagen */}
+                  <div className="relative h-48 bg-[#2a2a2a] overflow-hidden">
+                    {n.imagen_url ? (
+                      <img
+                        src={n.imagen_url}
+                        alt={n.titulo}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg className="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    {n.categoria && (
+                      <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full uppercase">
+                        {n.categoria}
+                      </span>
+                    )}
+                    {n.destacada && (
+                      <span className="absolute top-3 right-3 bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-full uppercase">
+                        Destacada
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Contenido */}
+                  <div className="p-4 flex flex-col flex-grow">
+                    <h3 className="text-white font-bold text-base leading-snug mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">
+                      {n.titulo}
+                    </h3>
+                    {n.descripcion && (
+                      <p className="text-gray-400 text-sm line-clamp-2 flex-grow">
+                        {n.descripcion}
+                      </p>
+                    )}
+                    <div className="mt-3 text-xs text-gray-500">
+                      {new Date(n.created_at).toLocaleDateString('es-CL', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </div>
+                  </div>
+                </article>
+              </Link>
+            ))}
+          </div>
+        )}
       </main>
-      
+
       <Footer />
     </div>
   );

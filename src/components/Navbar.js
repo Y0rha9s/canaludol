@@ -8,29 +8,54 @@ export default function Navbar() {
   const items = [
     { name: 'Inicio', href: '/' },
     { name: 'Noticias', href: '/noticias' },
+    { name: 'Regional', href: '/noticias?categoria=regional' },
+    { name: 'Deporte', href: '/noticias?categoria=deporte' },
+    { name: 'Cultura', href: '/noticias?categoria=cultura' },
     { name: 'Quiénes Somos', href: '/quienes-somos' },
-    { name: 'Nuestro Elenco', href: '/elenco' },
-    { name: 'Contáctanos', href: '/contacto' },
+    { name: 'Contacto', href: '/contacto' },
   ];
 
   return (
-    <nav className="bg-[#B0E2FF] shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border-b border-[#87CEFA]/30">
+    <nav className="bg-blue-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16 md:h-20">
+        <div className="flex justify-between items-center h-16">
+
           {/* Logo */}
-          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
             <img
               src="/logo.png"
               alt="Canal Udol"
-              className="h-12 md:h-16 w-auto object-contain"
+              className="h-10 w-auto object-contain"
             />
           </Link>
+
+          {/* Menu desktop */}
+          <div className="hidden md:flex items-center gap-6">
+            {items.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-white hover:text-blue-200 text-sm font-medium transition-colors"
+              >
+                {item.name}
+              </Link>
+            ))}
+
+            {/* Badge En Vivo */}
+            <Link
+              href="/en-vivo"
+              className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-3 py-1.5 rounded-full transition-colors"
+            >
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+              EN VIVO
+            </Link>
+          </div>
 
           {/* Botón móvil */}
           <button
             aria-label="Abrir menú"
             onClick={() => setOpen(!open)}
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-blue-700 hover:text-blue-900 hover:bg-white/40 transition"
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-blue-800 transition"
           >
             <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               {open ? (
@@ -40,31 +65,30 @@ export default function Navbar() {
               )}
             </svg>
           </button>
-
-          {/* Menu desktop */}
-          <div className="hidden md:flex space-x-8">
-            {items.map((item) => (
-              <Link key={item.name} href={item.href} className="text-blue-700 hover:text-blue-900 font-semibold transition">
-                {item.name}
-              </Link>
-            ))}
-          </div>
         </div>
 
         {/* Panel móvil */}
         {open && (
-          <div className="md:hidden pb-4">
-            <div className="flex flex-col space-y-2 bg-white/50 rounded-lg p-3 shadow">
+          <div className="md:hidden pb-4 border-t border-blue-600">
+            <div className="flex flex-col space-y-1 pt-3">
               {items.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block px-3 py-2 rounded-md font-semibold text-blue-700 hover:text-blue-900 hover:bg-white/70 transition"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-blue-800 transition"
                 >
                   {item.name}
                 </Link>
               ))}
+              <Link
+                href="/en-vivo"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-1.5 mx-3 mt-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-3 py-2 rounded-full transition-colors w-fit"
+              >
+                <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                EN VIVO
+              </Link>
             </div>
           </div>
         )}
