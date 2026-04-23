@@ -22,7 +22,16 @@ async function getNoticias() {
 }
 
 export default async function Home() {
-  const noticias = await getNoticias();
+  const [noticias, aliados] = await Promise.all([getNoticias(), getAliados()]);
+
+  async function getAliados() {
+    const { data } = await supabase
+      .from('red_aliados')
+      .select('*')
+      .eq('activo', true)
+      .order('orden', { ascending: true });
+    return data || [];
+  }
 
   const destacadas = noticias.filter((n) => n.destacada).slice(0, 5);
   const heroNoticias = destacadas.length > 0 ? destacadas : noticias.slice(0, 1);
@@ -33,7 +42,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
-
+      <RedCarousel slides={aliados} />
       <HeroCarousel noticias={heroNoticias} />
 
       <main className="flex-grow max-w-7xl mx-auto px-4 py-12 w-full">
