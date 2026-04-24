@@ -3,6 +3,7 @@ import Footer from '@/components/Footer';
 import HeroCarousel from '@/components/HeroCarousel';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
+import RedCarousel from '@/components/RedCarousel';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

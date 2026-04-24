@@ -9,9 +9,6 @@ export default function Navbar() {
   const items = [
     { name: 'Inicio', href: '/' },
     { name: 'Noticias', href: '/noticias' },
-    { name: 'Regional', href: '/noticias?categoria=regional' },
-    { name: 'Deporte', href: '/noticias?categoria=deporte' },
-    { name: 'Cultura', href: '/noticias?categoria=cultura' },
     { name: 'Contacto', href: '/contacto' },
   ];
 
