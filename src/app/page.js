@@ -22,6 +22,8 @@ async function getNoticias() {
   return data || [];
 }
 
+export const revalidate = 0;
+
 export default async function Home() {
   const [noticias, aliados] = await Promise.all([getNoticias(), getAliados()]);
 
