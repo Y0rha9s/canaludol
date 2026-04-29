@@ -51,22 +51,26 @@ export default function Navbar() {
               </button>
 
               {dropdown && (
-                <div className="absolute top-full left-0 mt-1 w-44 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-                  <Link
-                    href="/quienes-somos"
-                    onClick={() => setDropdown(false)}
-                    className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-medium transition-colors"
-                  >
-                    Nosotros
-                  </Link>
-                  <Link
-                    href="/colaboradores"
-                    onClick={() => setDropdown(false)}
-                    className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-medium transition-colors border-t border-gray-100"
-                  >
-                    Colaboradores
-                  </Link>
-                </div>
+                <>
+                  {/* Puente invisible para no perder el hover */}
+                  <div className="absolute top-full left-0 w-full h-2" />
+                  <div className="absolute top-full left-0 mt-2 w-44 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                    <Link
+                      href="/quienes-somos"
+                      onClick={() => setDropdown(false)}
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-medium transition-colors"
+                    >
+                      Nosotros
+                    </Link>
+                    <Link
+                      href="/colaboradores"
+                      onClick={() => setDropdown(false)}
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-medium transition-colors border-t border-gray-100"
+                    >
+                      Colaboradores
+                    </Link>
+                  </div>
+                </>
               )}
             </div>
 

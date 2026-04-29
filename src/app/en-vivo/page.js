@@ -1,34 +1,42 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
+
+export const revalidate = 0;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-async function getUrlEnVivo() {
+async function getConfig() {
   const { data } = await supabase
     .from('site_config')
-    .select('value')
-    .eq('key', 'url_senal_vivo')
-    .single();
-  return data?.value || null;
+    .select('key, value')
+    .in('key', ['url_senal_vivo', 'senal_activa']);
+
+  const config = {};
+  data?.forEach((row) => { config[row.key] = row.value; });
+  return {
+    url: config.url_senal_vivo || null,
+    activa: config.senal_activa === 'true',
+  };
 }
 
 function getEmbedUrl(url) {
   if (!url) return null;
 
-  // YouTube watch
   const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
 
-  // YouTube live
   const ytLiveMatch = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
   if (ytLiveMatch) return `https://www.youtube.com/embed/${ytLiveMatch[1]}?autoplay=1&rel=0`;
 
-  // Facebook página o video
-  if (url.includes('facebook.com')) {
+  const ytHandleMatch = url.match(/youtube\.com\/@([^/]+)\/live/);
+  if (ytHandleMatch) return `https://www.youtube.com/embed/live_stream?channel=@${ytHandleMatch[1]}&autoplay=1`;
+
+  if (url.includes('facebook.com') && !url.includes('youtube.com')) {
     return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&width=1280`;
   }
 
@@ -36,23 +44,24 @@ function getEmbedUrl(url) {
 }
 
 export default async function EnVivoPage() {
-  const url = await getUrlEnVivo();
-  const embedUrl = getEmbedUrl(url);
+  const { url, activa } = await getConfig();
+  const embedUrl = activa ? getEmbedUrl(url) : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f0f0f]">
       <Navbar />
 
-      {/* Header */}
       <section className="bg-[#0a0a0a] border-b border-white/10 py-8">
         <div className="max-w-7xl mx-auto px-4 flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 bg-red-600 rounded-full animate-pulse" />
+            <span className={`w-3 h-3 rounded-full ${activa ? 'bg-red-600 animate-pulse' : 'bg-gray-600'}`} />
             <h1 className="text-2xl font-extrabold text-white">Señal en Vivo</h1>
           </div>
-          <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-            En Directo
-          </span>
+          {activa && (
+            <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              En Directo
+            </span>
+          )}
         </div>
         <div className="max-w-7xl mx-auto px-4 mt-2">
           <p className="text-gray-400 text-sm">
@@ -61,7 +70,6 @@ export default async function EnVivoPage() {
         </div>
       </section>
 
-      {/* Player */}
       <main className="flex-grow max-w-7xl mx-auto px-4 py-10 w-full">
         {embedUrl ? (
           <div className="w-full">
@@ -92,7 +100,6 @@ export default async function EnVivoPage() {
           </div>
         )}
 
-        {/* Horario */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { dia: 'Lunes', hora: '8:30 hrs' },
