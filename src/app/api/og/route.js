@@ -1,4 +1,4 @@
-import ogs from 'open-graph-scraper';
+export const runtime = 'nodejs';
 
 export async function POST(request) {
   try {
@@ -8,28 +8,27 @@ export async function POST(request) {
       return Response.json({ error: 'URL requerida' }, { status: 400 });
     }
 
-    const { result, error } = await ogs({
-      url,
-      fetchOptions: {
-        headers: {
-          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
+    const res = await fetch(url, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       }
     });
 
-    if (error) {
-      return Response.json({ error: 'No se pudo extraer información' }, { status: 400 });
-    }
+    const html = await res.text();
 
-    const imagen = result.ogImage?.[0]?.url || null;
+    const getMeta = (property) => {
+      const match = html.match(new RegExp(`<meta[^>]*(?:property|name)=["']${property}["'][^>]*content=["']([^"']+)["']`, 'i'))
+        || html.match(new RegExp(`<meta[^>]*content=["']([^"']+)["'][^>]*(?:property|name)=["']${property}["']`, 'i'));
+      return match?.[1] || null;
+    };
 
-    return Response.json({
-      titulo: result.ogTitle || result.twitterTitle || '',
-      descripcion: result.ogDescription || result.twitterDescription || '',
-      imagen,
-    });
+    const titulo = getMeta('og:title') || getMeta('twitter:title') || '';
+    const descripcion = getMeta('og:description') || getMeta('twitter:description') || '';
+    const imagen = getMeta('og:image') || getMeta('twitter:image') || null;
+
+    return Response.json({ titulo, descripcion, imagen });
 
   } catch (e) {
-    return Response.json({ error: 'Error al procesar el link' }, { status: 500 });
+    return Response.json({ error: 'No se pudo extraer la noticia' }, { status: 500 });
   }
 }
