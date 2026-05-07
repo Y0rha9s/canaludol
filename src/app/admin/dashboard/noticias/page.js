@@ -6,7 +6,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
-const CATEGORIAS = ['Regional', 'Deporte', 'Cultura', 'Política', 'Comunidad'];
+const [linkImportar, setLinkImportar] = useState('');
+const [importando, setImportando] = useState(false);
+const [errorImport, setErrorImport] = useState('');
+
+const CATEGORIAS = ['Regional', 'Deporte', 'Cultura', 'Política', 'Comunidad', 'Compartidas'];
 
 const DURACIONES = [
   { label: '14 días', dias: 14 },
@@ -77,6 +81,45 @@ export default function AdminNoticias() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+  };
+
+  const handleImportar = async () => {
+    if (!linkImportar) return;
+    setImportando(true);
+    setErrorImport('');
+
+    try {
+      const res = await fetch('/api/og', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: linkImportar }),
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        setErrorImport('No se pudo extraer la noticia. Intenta con otro link.');
+        setImportando(false);
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        titulo: data.titulo || prev.titulo,
+        descripcion: data.descripcion || prev.descripcion,
+        categoria: 'Compartidas',
+      }));
+
+      if (data.imagen) {
+        setFormData((prev) => ({ ...prev, imagen_url: data.imagen }));
+      }
+
+      setLinkImportar('');
+    } catch {
+      setErrorImport('Error al conectar con el servidor.');
+    }
+
+    setImportando(false);
   };
 
   const handleCreate = async (e) => {
@@ -191,6 +234,36 @@ export default function AdminNoticias() {
         <section className="bg-white rounded-xl shadow p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Crear nueva noticia</h2>
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Importar desde link */}
+            <div className="md:col-span-2 bg-blue-50 border border-blue-100 rounded-xl p-4">
+              <label className="block text-sm font-bold text-blue-700 mb-2">
+                Importar desde Facebook u otro sitio
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={linkImportar}
+                  onChange={(e) => setLinkImportar(e.target.value)}
+                  placeholder="https://www.facebook.com/CanalUdol/posts/..."
+                  className="flex-1 px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-black text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={handleImportar}
+                  disabled={importando || !linkImportar}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm font-medium shrink-0"
+                >
+                  {importando ? 'Importando...' : 'Importar'}
+                </button>
+              </div>
+              {errorImport && (
+                <p className="text-red-500 text-xs mt-2">{errorImport}</p>
+              )}
+              <p className="text-blue-500 text-xs mt-1">
+                Se pre-rellenará el formulario automáticamente. Puedes editarlo antes de publicar.
+              </p>
+            </div>
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
@@ -344,11 +417,10 @@ export default function AdminNoticias() {
                   <div className="flex items-center gap-2 ml-4 shrink-0">
                     <button
                       onClick={() => handleToggleDestacada(n)}
-                      className={`text-xs px-3 py-1 rounded-lg transition ${
-                        n.destacada
-                          ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                      className={`text-xs px-3 py-1 rounded-lg transition ${n.destacada
+                        ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
                     >
                       {n.destacada ? 'Quitar destacada' : 'Destacar'}
                     </button>

@@ -8,7 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-const CATEGORIAS = ['Regional', 'Deporte', 'Cultura', 'Política', 'Comunidad'];
+const CATEGORIAS = ['Regional', 'Deporte', 'Cultura', 'Política', 'Comunidad', 'Compartidas'];
 
 async function getNoticias(categoria) {
   const now = new Date().toISOString();
@@ -24,6 +24,19 @@ async function getNoticias(categoria) {
   }
 
   const { data } = await query;
+  return data || [];
+}
+
+async function getCompartidas() {
+  const now = new Date().toISOString();
+  const { data } = await supabase
+    .from('noticias')
+    .select('*')
+    .eq('publicada', true)
+    .ilike('categoria', 'compartidas')
+    .or(`expires_at.is.null,expires_at.gt.${now}`)
+    .order('created_at', { ascending: false })
+    .limit(5);
   return data || [];
 }
 
@@ -44,11 +57,10 @@ export default async function NoticiasPage({ searchParams }) {
           <div className="flex flex-wrap gap-2">
             <Link
               href="/noticias"
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                !categoria
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${!categoria
                   ? 'bg-red-600 text-white'
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
-              }`}
+                }`}
             >
               Todas
             </Link>
@@ -56,11 +68,10 @@ export default async function NoticiasPage({ searchParams }) {
               <Link
                 key={cat}
                 href={`/noticias?categoria=${cat.toLowerCase()}`}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  categoria?.toLowerCase() === cat.toLowerCase()
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${categoria?.toLowerCase() === cat.toLowerCase()
                     ? 'bg-red-600 text-white'
                     : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                }`}
+                  }`}
               >
                 {cat}
               </Link>
