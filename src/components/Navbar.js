@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
+import RadioPlayer from './RadioPlayer';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -73,6 +74,8 @@ export default function Navbar() {
                 </>
               )}
             </div>
+
+            <RadioPlayer />
 
             {/* Badge En Vivo */}
             <Link

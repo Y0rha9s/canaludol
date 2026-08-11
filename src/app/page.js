@@ -64,6 +64,21 @@ export default async function Home() {
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       <RedCarousel slides={aliados} />
+
+      {/* Banner Radio */}
+      <a
+        href="https://noticiasaraucania.cl/senal-online-radio-popmusic-101-9-villarrica/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block max-w-7xl mx-auto px-4 pt-4"
+      >
+        <img
+          src="https://i.ibb.co/whBgp4Y1/radio-POPmusic.jpg"
+          alt="Radio Pop Music 101.9"
+          className="w-full h-auto rounded-xl hover:opacity-90 transition-opacity"
+        />
+      </a>
+
       <HeroCarousel noticias={heroNoticias} />
 
       <main className="flex-grow max-w-7xl mx-auto px-4 py-12 w-full">
