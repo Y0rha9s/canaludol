@@ -75,7 +75,7 @@ export default async function Home() {
         <img
           src="https://i.ibb.co/whBgp4Y1/radio-POPmusic.jpg"
           alt="Radio Pop Music 101.9"
-          className="w-full h-auto rounded-xl hover:opacity-90 transition-opacity"
+          className="w-full max-h-40 object-cover rounded-xl hover:opacity-90 transition-opacity"
         />
       </a>
 
