@@ -67,7 +67,7 @@ export default async function Home() {
 
       {/* Banner Radio */}
       <a
-        href="https://noticiasaraucania.cl/senal-online-radio-popmusic-101-9-villarrica/"
+        href="https://streaming01.xhost.cl:8064/"
         target="_blank"
         rel="noopener noreferrer"
         className="block max-w-7xl mx-auto px-4 pt-4"
