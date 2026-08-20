@@ -21,6 +21,7 @@ export default function Footer() {
               {[
                 { name: 'Inicio', href: '/' },
                 { name: 'Noticias', href: '/noticias' },
+                { name: 'Programación', href: '/programacion' },
                 { name: 'Regional', href: '/noticias?categoria=regional' },
                 { name: 'Deporte', href: '/noticias?categoria=deporte' },
                 { name: 'Cultura', href: '/noticias?categoria=cultura' },

@@ -128,6 +128,17 @@ export default function AdminDashboard() {
       accion: 'Gestionar',
       accionColor: 'text-teal-600',
     },
+    {
+      href: '/admin/dashboard/programacion',
+      color: 'bg-orange-600',
+      icon: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      ),
+      titulo: 'Programación',
+      desc: 'Horarios de los programas',
+      accion: 'Gestionar',
+      accionColor: 'text-orange-600',
+    },
   ];
 
   return (
@@ -186,7 +197,7 @@ export default function AdminDashboard() {
         {/* Accesos rápidos */}
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-bold text-gray-800 mb-4">Accesos Rápidos</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <Link
               href="/admin/dashboard/noticias"
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all"
@@ -229,6 +240,21 @@ export default function AdminDashboard() {
               <div>
                 <div className="font-semibold text-gray-800 text-sm">Mensajes</div>
                 <div className="text-xs text-gray-500">Ver consultas recibidas</div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/dashboard/programacion"
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-all"
+            >
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-800 text-sm">Programación</div>
+                <div className="text-xs text-gray-500">Agregar o editar horarios</div>
               </div>
             </Link>
           </div>
