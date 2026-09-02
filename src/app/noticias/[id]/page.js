@@ -37,8 +37,9 @@ async function getRelacionadas(id, categoria) {
   return data || [];
 }
 
-export default async function NoticiasPage({ searchParams }) {
-  const { categoria } = await searchParams;
+export default async function NoticiaPage({ params }) {
+  const { id } = await params;
+  const noticia = await getNoticia(id);
   if (!noticia) notFound();
 
   const relacionadas = await getRelacionadas(noticia.id, noticia.categoria);
