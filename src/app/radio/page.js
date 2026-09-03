@@ -4,7 +4,7 @@ import RedCarousel from '@/components/RedCarousel';
 import RadioHeroPlayer from '@/components/RadioHeroPlayer';
 import { createClient } from '@supabase/supabase-js';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

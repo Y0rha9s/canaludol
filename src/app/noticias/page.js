@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { createClient } from '@supabase/supabase-js';
+import { unstable_cache } from 'next/cache';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -10,22 +11,26 @@ const supabase = createClient(
 
 const CATEGORIAS = ['Regional', 'Deporte', 'Cultura', 'Política', 'Comunidad', 'Compartidas'];
 
-async function getNoticias(categoria) {
-  const now = new Date().toISOString();
-  let query = supabase
-    .from('noticias')
-    .select('*')
-    .eq('publicada', true)
-    .or(`expires_at.is.null,expires_at.gt.${now}`)
-    .order('created_at', { ascending: false });
+const getNoticias = unstable_cache(
+  async (categoria) => {
+    const now = new Date().toISOString();
+    let query = supabase
+      .from('noticias')
+      .select('id, titulo, descripcion, imagen_url, categoria, created_at, destacada')
+      .eq('publicada', true)
+      .or(`expires_at.is.null,expires_at.gt.${now}`)
+      .order('created_at', { ascending: false });
 
-  if (categoria) {
-    query = query.ilike('categoria', categoria);
-  }
+    if (categoria) {
+      query = query.ilike('categoria', categoria);
+    }
 
-  const { data } = await query;
-  return data || [];
-}
+    const { data } = await query;
+    return data || [];
+  },
+  ['noticias-por-categoria'],
+  { revalidate: 60 }
+);
 
 async function getCompartidas() {
   const now = new Date().toISOString();
@@ -41,7 +46,7 @@ async function getCompartidas() {
 }
 
 export default async function NoticiasPage({ searchParams }) {
-  const categoria = searchParams?.categoria || null;
+  const { categoria } = await searchParams;
   const noticias = await getNoticias(categoria);
 
   return (

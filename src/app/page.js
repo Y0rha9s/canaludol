@@ -10,13 +10,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 async function getNoticias() {
   const now = new Date().toISOString();
   const { data } = await supabase
     .from('noticias')
-    .select('*')
+    .select('id, titulo, descripcion, imagen_url, categoria, created_at, destacada')
     .eq('publicada', true)
     .not('categoria', 'ilike', 'compartidas')
     .or(`expires_at.is.null,expires_at.gt.${now}`)
@@ -38,7 +38,7 @@ async function getCompartidas() {
   const now = new Date().toISOString();
   const { data } = await supabase
     .from('noticias')
-    .select('*')
+    .select('id, titulo, descripcion, imagen_url, created_at')
     .eq('publicada', true)
     .ilike('categoria', 'compartidas')
     .or(`expires_at.is.null,expires_at.gt.${now}`)

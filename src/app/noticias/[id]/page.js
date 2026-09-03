@@ -3,11 +3,14 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { createClient } from '@supabase/supabase-js';
 import { notFound } from 'next/navigation';
+import { getYoutubeEmbedUrl } from '@/lib/youtube';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
+
+export const revalidate = 60;
 
 async function getNoticia(id) {
   const { data } = await supabase
@@ -22,7 +25,7 @@ async function getRelacionadas(id, categoria) {
   const now = new Date().toISOString();
   let query = supabase
     .from('noticias')
-    .select('*')
+    .select('id, titulo, imagen_url, categoria, created_at')
     .eq('publicada', true)
     .or(`expires_at.is.null,expires_at.gt.${now}`)
     .neq('id', id)
@@ -107,6 +110,29 @@ export default async function NoticiaPage({ params }) {
           <p className="text-gray-300 text-xl leading-relaxed border-l-4 border-red-600 pl-4 mb-8">
             {noticia.descripcion}
           </p>
+        )}
+
+        {/* Video de YouTube */}
+        {getYoutubeEmbedUrl(noticia.youtube_url) && (
+          <div className="mb-8">
+            <div className="relative w-full rounded-xl overflow-hidden bg-black" style={{ paddingTop: '56.25%' }}>
+              <iframe
+                src={getYoutubeEmbedUrl(noticia.youtube_url)}
+                className="absolute inset-0 w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            <a
+              href={noticia.youtube_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline text-xs mt-2 inline-block"
+            >
+              Ver en YouTube ↗
+            </a>
+          </div>
         )}
 
         {/* Contenido completo */}

@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 import { createClient } from '@supabase/supabase-js';
 import { DIAS, minutosDesdeLas6 } from '@/lib/programacion';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

@@ -35,12 +35,10 @@ export default function AdminNoticias() {
   const [error, setError] = useState('');
   const [imagenFile, setImagenFile] = useState(null);
   const [duracion, setDuracion] = useState(30);
-  const [linkImportar, setLinkImportar] = useState('');
-  const [importando, setImportando] = useState(false);
-  const [errorImport, setErrorImport] = useState('');
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
+    youtube_url: '',
     contenido: '',
     categoria: '',
     destacada: false,
@@ -73,36 +71,6 @@ export default function AdminNoticias() {
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
-  const handleImportar = async () => {
-    if (!linkImportar) return;
-    setImportando(true);
-    setErrorImport('');
-    try {
-      const res = await fetch('/api/og', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: linkImportar }),
-      });
-      const data = await res.json();
-      if (data.error) {
-        setErrorImport('No se pudo extraer la noticia. Intenta con otro link.');
-        setImportando(false);
-        return;
-      }
-      setFormData((prev) => ({
-        ...prev,
-        titulo: data.titulo || prev.titulo,
-        descripcion: data.descripcion || prev.descripcion,
-        categoria: 'Compartidas',
-      }));
-      if (data.imagen) setFormData((prev) => ({ ...prev, imagen_url: data.imagen }));
-      setLinkImportar('');
-    } catch {
-      setErrorImport('Error al conectar con el servidor.');
-    }
-    setImportando(false);
-  };
-
   const handleCreate = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -126,6 +94,7 @@ export default function AdminNoticias() {
     const payload = {
       titulo: formData.titulo,
       descripcion: formData.descripcion || null,
+      youtube_url: formData.youtube_url || null,
       contenido: formData.contenido || null,
       imagen_url: imagenUrl,
       categoria: formData.categoria || null,
@@ -140,7 +109,7 @@ export default function AdminNoticias() {
 
     if (error) { setError('No se pudo crear la noticia'); return; }
 
-    setFormData({ titulo: '', descripcion: '', contenido: '', categoria: '', destacada: false, orden: 1, publicada: true });
+    setFormData({ titulo: '', descripcion: '', youtube_url: '', contenido: '', categoria: '', destacada: false, orden: 1, publicada: true });
     setImagenFile(null);
     setDuracion(30);
     const { data } = await fetchNoticias();
@@ -193,30 +162,6 @@ export default function AdminNoticias() {
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Crear nueva noticia</h2>
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            {/* Importar */}
-            <div className="md:col-span-2 bg-blue-50 border border-blue-100 rounded-xl p-4">
-              <label className="block text-sm font-bold text-blue-700 mb-2">Importar desde Facebook u otro sitio</label>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={linkImportar}
-                  onChange={(e) => setLinkImportar(e.target.value)}
-                  placeholder="https://www.facebook.com/CanalUdol/posts/..."
-                  className="flex-1 px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-black text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={handleImportar}
-                  disabled={importando || !linkImportar}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm font-medium shrink-0"
-                >
-                  {importando ? 'Importando...' : 'Importar'}
-                </button>
-              </div>
-              {errorImport && <p className="text-red-500 text-xs mt-2">{errorImport}</p>}
-              <p className="text-blue-500 text-xs mt-1">Se pre-rellenará el formulario automáticamente.</p>
-            </div>
-
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
               <input type="text" name="titulo" value={formData.titulo} onChange={handleChange} required
@@ -227,6 +172,14 @@ export default function AdminNoticias() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Descripción corta</label>
               <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows="2"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Link de YouTube</label>
+              <input type="url" name="youtube_url" value={formData.youtube_url} onChange={handleChange}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black" />
+              <p className="mt-1 text-xs text-gray-500">Opcional. Si lo agregas, el video se muestra reproducible dentro de la noticia.</p>
             </div>
 
             <div className="md:col-span-2">

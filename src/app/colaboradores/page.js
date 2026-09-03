@@ -7,6 +7,8 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+export const revalidate = 60;
+
 async function getColaboradores() {
   const { data } = await supabase
     .from('colaboradores')
