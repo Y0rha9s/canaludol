@@ -66,18 +66,13 @@ export default async function Home() {
       <RedCarousel slides={aliados} />
 
       {/* Banner Radio */}
-      <a
-        href="https://streaming01.xhost.cl:8064/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block max-w-7xl mx-auto px-4 pt-4"
-      >
+      <Link href="/radio" className="block max-w-7xl mx-auto px-4 pt-4">
         <img
           src="https://i.ibb.co/whBgp4Y1/radio-POPmusic.jpg"
           alt="Radio Pop Music 101.9"
           className="w-full max-h-40 object-cover rounded-xl hover:opacity-90 transition-opacity"
         />
-      </a>
+      </Link>
 
       <HeroCarousel noticias={heroNoticias} />
 

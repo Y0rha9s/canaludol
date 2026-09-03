@@ -1,27 +1,10 @@
 'use client';
-import { useState, useRef } from 'react';
-
-const STREAM_URL = 'https://streaming01.xhost.cl/8064/stream';
+import { useState } from 'react';
+import { useRadioPlayer } from '@/lib/useRadioPlayer';
 
 export default function RadioPlayer() {
   const [open, setOpen] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const audioRef = useRef(null);
-
-  const togglePlay = () => {
-    if (!audioRef.current) return;
-
-    if (playing) {
-      audioRef.current.pause();
-      setPlaying(false);
-    } else {
-      setLoading(true);
-      audioRef.current.play()
-        .then(() => { setPlaying(true); setLoading(false); })
-        .catch(() => setLoading(false));
-    }
-  };
+  const { playing, loading, audioRef, togglePlay, streamUrl } = useRadioPlayer();
 
   return (
     <>
@@ -90,7 +73,7 @@ export default function RadioPlayer() {
             </div>
           </div>
 
-          <audio ref={audioRef} src={STREAM_URL} preload="none" />
+          <audio ref={audioRef} src={streamUrl} preload="none" />
         </div>
       )}
     </>
