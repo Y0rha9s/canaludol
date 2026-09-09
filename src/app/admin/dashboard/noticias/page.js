@@ -26,6 +26,17 @@ async function uploadImgbb(file) {
   return data.data.url;
 }
 
+const FORM_VACIO = {
+  titulo: '',
+  descripcion: '',
+  youtube_url: '',
+  contenido: '',
+  categoria: '',
+  destacada: false,
+  orden: 1,
+  publicada: true,
+};
+
 export default function AdminNoticias() {
   const { status } = useSession();
   const router = useRouter();
@@ -33,18 +44,11 @@ export default function AdminNoticias() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [editando, setEditando] = useState(null);
   const [imagenFile, setImagenFile] = useState(null);
+  const [imagenActual, setImagenActual] = useState(null);
   const [duracion, setDuracion] = useState(30);
-  const [formData, setFormData] = useState({
-    titulo: '',
-    descripcion: '',
-    youtube_url: '',
-    contenido: '',
-    categoria: '',
-    destacada: false,
-    orden: 1,
-    publicada: true,
-  });
+  const [formData, setFormData] = useState(FORM_VACIO);
 
   const fetchNoticias = () =>
     supabase.from('noticias').select('*').order('created_at', { ascending: false });
@@ -71,12 +75,40 @@ export default function AdminNoticias() {
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
-  const handleCreate = async (e) => {
+  const handleEditar = (noticia) => {
+    setEditando(noticia.id);
+    setFormData({
+      titulo: noticia.titulo,
+      descripcion: noticia.descripcion || '',
+      youtube_url: noticia.youtube_url || '',
+      contenido: noticia.contenido || '',
+      categoria: noticia.categoria || '',
+      destacada: noticia.destacada,
+      orden: noticia.orden || 1,
+      publicada: noticia.publicada,
+    });
+    setImagenActual(noticia.imagen_url || null);
+    setImagenFile(null);
+    setDuracion('mantener');
+    setError('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelarEdicion = () => {
+    setEditando(null);
+    setFormData(FORM_VACIO);
+    setImagenFile(null);
+    setImagenActual(null);
+    setDuracion(30);
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError('');
 
-    let imagenUrl = null;
+    let imagenUrl = editando ? imagenActual : null;
     if (imagenFile) {
       try {
         imagenUrl = await uploadImgbb(imagenFile);
@@ -86,10 +118,6 @@ export default function AdminNoticias() {
         return;
       }
     }
-
-    const expiresAt = duracion
-      ? new Date(Date.now() + duracion * 24 * 60 * 60 * 1000).toISOString()
-      : null;
 
     const payload = {
       titulo: formData.titulo,
@@ -101,17 +129,26 @@ export default function AdminNoticias() {
       destacada: formData.destacada,
       orden: formData.destacada ? Number(formData.orden) || 1 : null,
       publicada: formData.publicada,
-      expires_at: expiresAt,
     };
 
-    const { error } = await supabase.from('noticias').insert(payload);
+    if (duracion !== 'mantener') {
+      payload.expires_at = duracion
+        ? new Date(Date.now() + duracion * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+    }
+
+    let error;
+    if (editando) {
+      ({ error } = await supabase.from('noticias').update(payload).eq('id', editando));
+    } else {
+      ({ error } = await supabase.from('noticias').insert(payload));
+    }
+
     setSaving(false);
 
-    if (error) { setError('No se pudo crear la noticia'); return; }
+    if (error) { setError(editando ? 'No se pudo guardar los cambios' : 'No se pudo crear la noticia'); return; }
 
-    setFormData({ titulo: '', descripcion: '', youtube_url: '', contenido: '', categoria: '', destacada: false, orden: 1, publicada: true });
-    setImagenFile(null);
-    setDuracion(30);
+    handleCancelarEdicion();
     const { data } = await fetchNoticias();
     setNoticias(data || []);
   };
@@ -159,8 +196,10 @@ export default function AdminNoticias() {
         )}
 
         <section className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Crear nueva noticia</h2>
-          <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">
+            {editando ? 'Editar noticia' : 'Crear nueva noticia'}
+          </h2>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
@@ -190,11 +229,14 @@ export default function AdminNoticias() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+              {imagenActual && !imagenFile && (
+                <img src={imagenActual} alt="Actual" className="w-20 h-20 object-cover rounded-lg mb-2 border border-gray-200" />
+              )}
               <label className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium cursor-pointer hover:bg-blue-700">
-                Subir imagen
+                {imagenActual ? 'Cambiar imagen' : 'Subir imagen'}
                 <input type="file" accept="image/*" onChange={(e) => setImagenFile(e.target.files?.[0] || null)} className="hidden" />
               </label>
-              <p className="mt-1 text-xs text-gray-500">{imagenFile ? `✓ ${imagenFile.name}` : 'Ningún archivo seleccionado'}</p>
+              <p className="mt-1 text-xs text-gray-500">{imagenFile ? `✓ ${imagenFile.name}` : 'Ningún archivo nuevo seleccionado'}</p>
             </div>
 
             <div>
@@ -208,8 +250,12 @@ export default function AdminNoticias() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Duración en el sitio</label>
-              <select value={duracion ?? 'null'} onChange={(e) => setDuracion(e.target.value === 'null' ? null : Number(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black">
+              <select
+                value={duracion === 'mantener' ? 'mantener' : duracion ?? 'null'}
+                onChange={(e) => setDuracion(e.target.value === 'null' ? null : e.target.value === 'mantener' ? 'mantener' : Number(e.target.value))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black"
+              >
+                {editando && <option value="mantener">Mantener fecha actual</option>}
                 {DURACIONES.map((d) => <option key={d.label} value={d.dias ?? 'null'}>{d.label}</option>)}
               </select>
             </div>
@@ -226,10 +272,16 @@ export default function AdminNoticias() {
               <label htmlFor="publicada" className="text-sm text-gray-700">Publicar en el sitio</label>
             </div>
 
-            <div className="md:col-span-2 flex justify-end">
+            <div className="md:col-span-2 flex justify-end gap-3">
+              {editando && (
+                <button type="button" onClick={handleCancelarEdicion}
+                  className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium">
+                  Cancelar
+                </button>
+              )}
               <button type="submit" disabled={saving}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium">
-                {saving ? 'Guardando...' : 'Crear noticia'}
+                {saving ? 'Guardando...' : editando ? 'Guardar cambios' : 'Crear noticia'}
               </button>
             </div>
           </form>
@@ -260,6 +312,10 @@ export default function AdminNoticias() {
                     <button onClick={() => handleToggleDestacada(n)}
                       className={`text-xs px-3 py-1 rounded-lg transition ${n.destacada ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                       {n.destacada ? 'Quitar destacada' : 'Destacar'}
+                    </button>
+                    <button onClick={() => handleEditar(n)}
+                      className="text-xs px-3 py-1 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200">
+                      Editar
                     </button>
                     <button onClick={() => handleDelete(n.id)}
                       className="text-xs px-3 py-1 rounded-lg bg-red-100 text-red-800 hover:bg-red-200">

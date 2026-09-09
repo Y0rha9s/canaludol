@@ -79,15 +79,6 @@ export default async function NoticiaPage({ params }) {
               month: 'long',
               year: 'numeric'
             })}
-            {noticia.expires_at && (
-              <span className="ml-4 text-yellow-500">
-                Disponible hasta {new Date(noticia.expires_at).toLocaleDateString('es-CL', {
-                  day: '2-digit',
-                  month: 'long',
-                  year: 'numeric'
-                })}
-              </span>
-            )}
           </div>
         </div>
       </section>
